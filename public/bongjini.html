@@ -94,7 +94,9 @@
 
       try {
         const token = getTokenFromStorage();
+        console.log('Access Token:', token);
         const userId = parseJwt(token).sub;
+        console.log('User ID:', userId);
 
         const response = await fetch(API_URL, {
           method: 'POST',

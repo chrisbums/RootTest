@@ -83,7 +83,7 @@ const Item = styled(motion.li)`
 
 // Cognito User Pool configuration
 const COGNITO_DOMAIN = 'https://ap-northeast-22rssvg0v4.auth.ap-northeast-2.amazoncognito.com';
-const REDIRECT_URI = 'https://d1hav8gudi1rcf.cloudfront.net/bongjini.html';
+const REDIRECT_URI = 'https://d1hav8gudi1rcf.cloudfront.net';
 const poolData = {
   UserPoolId: 'ap-northeast-2_2rssvg0V4',
   ClientId: '50hcp8rn5ukr4b9vgkv7fbgi3i',
@@ -208,7 +208,7 @@ const Navbar = () => {
       try {
         // Navigate to BonGenie page
         console.log("인증된 상태로 봉지니 페이지 접근");
-        window.location.href = REDIRECT_URI;
+        window.location.href = `${REDIRECT_URI}/bongjini.html`;
       } catch (err) {
         console.error('페이지 이동 중 오류:', err);
         alert("페이지 접근 중 오류가 발생했습니다.");

@@ -59,7 +59,7 @@
     const COGNITO_DOMAIN = 'https://ap-northeast-22rssvg0v4.auth.ap-northeast-2.amazoncognito.com';
     const CLIENT_ID = '50hcp8rn5ukr4b9vgkv7fbgi3i';
     const CLIENT_SECRET = '9jc28982ocltl5qbpmka9i7ecqflpgd1vpvannjo3kksed0shqi'; // 반드시 안전하게 관리
-    const REDIRECT_URI = 'https://d1hav8gudi1rcf.cloudfront.net/bongjini.html';
+    const REDIRECT_URI = 'https://d1hav8gudi1rcf.cloudfront.net';
     const API_URL = 'https://8ubwvvgoxf.execute-api.ap-northeast-2.amazonaws.com/dev/invokeLambda';
 
     const getTokenFromStorage = () => {
@@ -147,7 +147,7 @@
             grant_type: 'authorization_code',
             client_id: CLIENT_ID,
             code: code,
-            redirect_uri: REDIRECT_URI,
+            redirect_uri: `${REDIRECT_URI}/bongjini.html`,
           }),
         });
 

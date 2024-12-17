@@ -64,7 +64,6 @@
 
     const getTokenFromStorage = () => {
       const token = localStorage.getItem('access_token');
-      if (!token) redirectToLogin();
       return token;
     };
 

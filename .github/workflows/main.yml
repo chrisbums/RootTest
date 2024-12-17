@@ -25,4 +25,4 @@ jobs:
       # 3. S3 버킷에 빌드폴더 내 파일만 업로드
       - name: Deploy to S3
         run: |
-          aws s3 sync ./build s3://testdasibar --delete
+          aws s3 sync ./build s3://eaitestsuccess --delete

@@ -153,15 +153,15 @@ const Navbar = () => {
 
         // 토큰 저장 전 확인
         console.log("토큰 정보:", {
-          accessToken: tokens.access_token ? '존재' : '없음',
-          idToken: tokens.id_token ? '존재' : '없음',
-          refreshToken: tokens.refresh_token ? '존재' : '없음'
+          accessToken: tokens.accessToken ? '존재' : '없음',
+          idToken: tokens.idToken ? '존재' : '없음',
+          refreshToken: tokens.refreshToken ? '존재' : '없음'
         });
 
         // Store tokens in localStorage
-        localStorage.setItem('accessToken', tokens.access_token);
-        localStorage.setItem('idToken', tokens.id_token);
-        localStorage.setItem('refreshToken', tokens.refresh_token);
+        localStorage.setItem('accessToken', tokens.accessToken);
+        localStorage.setItem('idToken', tokens.idToken);
+        localStorage.setItem('refreshToken', tokens.refreshToken);
         
         setIsAuthenticated(true);
         

@@ -63,7 +63,7 @@
     const API_URL = 'https://8ubwvvgoxf.execute-api.ap-northeast-2.amazonaws.com/dev/invokeLambda';
 
     const getTokenFromStorage = () => {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('accessToken');
       return token;
     };
 
@@ -157,12 +157,12 @@
         const data = await response.json();
         console.log('Token response data:', data);
 
-        if (!data.access_token) {
+        if (!data.accessToken) {
           throw new Error('Access token is missing in the response.');
         }
 
-        localStorage.setItem('access_token', data.access_token);
-        console.log('Access token saved successfully:', data.access_token);
+        localStorage.setItem('accessToken', data.accessToken);
+        console.log('Access token saved successfully:', data.accessToken);
 
         window.location.replace(window.location.pathname);
       } catch (error) {

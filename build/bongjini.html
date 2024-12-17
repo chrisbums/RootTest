@@ -135,12 +135,14 @@
     const exchangeCodeForToken = async (code) => {
       try {
         const tokenEndpoint = `${COGNITO_DOMAIN}/oauth2/token`;
-        const credentials = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`); // Base64 인코딩
+        const credentials = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
+        console.log('Token endpoint:', tokenEndpoint);
+
         const response = await fetch(tokenEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: `Basic ${credentials}`, // 클라이언트 시크릿 적용
+            Authorization: `Basic ${credentials}`,
           },
           body: new URLSearchParams({
             grant_type: 'authorization_code',
@@ -150,14 +152,25 @@
           }),
         });
 
-        if (!response.ok) throw new Error('Failed to exchange code for token.');
-        const { access_token } = await response.json();
-        localStorage.setItem('access_token', access_token);
+        console.log('Response status:', response.status);
+
+        const data = await response.json();
+        console.log('Token response data:', data);
+
+        if (!data.access_token) {
+          throw new Error('Access token is missing in the response.');
+        }
+
+        localStorage.setItem('access_token', data.access_token);
+        console.log('Access token saved successfully:', data.access_token);
+
         window.location.replace(window.location.pathname);
       } catch (error) {
         console.error('Token exchange error:', error);
+        alert('Failed to exchange code for token.');
       }
     };
+
 
     window.onload = init;
   </script>

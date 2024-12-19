@@ -62,13 +62,66 @@
     const REDIRECT_URI = 'https://d1hav8gudi1rcf.cloudfront.net';
     const API_URL = 'https://8ubwvvgoxf.execute-api.ap-northeast-2.amazonaws.com/dev/invokeLambda';
 
-    const getTokenFromStorage = () => {
-      const token = localStorage.getItem('accessToken');
-      return token;
+    const parseJwt = (token) => {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(atob(base64));
+    };
+
+    const getTokenFromStorage = async () => {
+      const accessToken = localStorage.getItem('accessToken');
+      const refreshToken = localStorage.getItem('refreshToken');
+
+      if (!accessToken || !refreshToken) {
+        redirectToLogin();
+        return null;
+      }
+
+      const decodedToken = parseJwt(accessToken);
+      const now = Math.floor(Date.now() / 1000);
+
+      if (decodedToken.exp < now) {
+        console.log('Access token expired. Refreshing...');
+        const newAccessToken = await refreshAccessToken(refreshToken);
+        return newAccessToken;
+      }
+
+      return accessToken;
+    };
+
+    const refreshAccessToken = async (refreshToken) => {
+      try {
+        const tokenEndpoint = `${COGNITO_DOMAIN}/oauth2/token`;
+        const credentials = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
+        const response = await fetch(tokenEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${credentials}`,
+          },
+          body: new URLSearchParams({
+            grant_type: 'refresh_token',
+            client_id: CLIENT_ID,
+            refresh_token: refreshToken,
+          }),
+        });
+
+        const data = await response.json();
+        if (!data.access_token) throw new Error('Failed to refresh access token.');
+
+        localStorage.setItem('accessToken', data.access_token);
+        console.log('Access token refreshed successfully:', data.access_token);
+
+        return data.access_token;
+      } catch (error) {
+        console.error('Error refreshing access token:', error);
+        redirectToLogin();
+        return null;
+      }
     };
 
     const redirectToLogin = () => {
-      const loginUrl = `${COGNITO_DOMAIN}/login?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=email+openid`;
+      const loginUrl = `${COGNITO_DOMAIN}/login?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=email+openid+offline_access`;
       window.location.href = loginUrl;
     };
 
@@ -93,8 +146,10 @@
       });
 
       try {
-        const token = getTokenFromStorage();
-        console.log('access Token:', token);
+        const token = await getTokenFromStorage();
+        if (!token) return;
+
+        console.log('Access Token:', token);
         const userId = parseJwt(token).sub;
         console.log('User ID:', userId);
 
@@ -122,24 +177,10 @@
       }
     };
 
-    const parseJwt = (token) => {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(atob(base64));
-    };
-
-    const init = () => {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get('code');
-      if (code) exchangeCodeForToken(code);
-    };
-
     const exchangeCodeForToken = async (code) => {
       try {
         const tokenEndpoint = `${COGNITO_DOMAIN}/oauth2/token`;
         const credentials = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
-        console.log('Token endpoint:', tokenEndpoint);
-
         const response = await fetch(tokenEndpoint, {
           method: 'POST',
           headers: {
@@ -154,17 +195,14 @@
           }),
         });
 
-        console.log('Response status:', response.status);
-
         const data = await response.json();
-        console.log('Token response data:', data);
-
-        if (!data.access_token) {
-          throw new Error('Access token is missing in the response.');
+        if (!data.access_token || !data.refresh_token) {
+          throw new Error('Access or refresh token is missing in the response.');
         }
 
         localStorage.setItem('accessToken', data.access_token);
-        console.log('Access token saved successfully:', data.access_token);
+        localStorage.setItem('refreshToken', data.refresh_token);
+        console.log('Tokens saved successfully:', data.access_token, data.refresh_token);
 
         window.location.replace(window.location.pathname);
       } catch (error) {
@@ -173,6 +211,11 @@
       }
     };
 
+    const init = () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      if (code) exchangeCodeForToken(code);
+    };
 
     window.onload = init;
   </script>

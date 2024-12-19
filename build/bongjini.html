@@ -63,7 +63,7 @@
     const API_URL = 'https://8ubwvvgoxf.execute-api.ap-northeast-2.amazonaws.com/dev/invokeLambda';
 
     const getTokenFromStorage = () => {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('idToken');
       return token;
     };
 
@@ -94,12 +94,13 @@
 
       try {
         const token = getTokenFromStorage();
-        console.log('Access Token:', token);
+        console.log('id Token:', token);
         const userId = parseJwt(token).sub;
         console.log('User ID:', userId);
 
         const response = await fetch(API_URL, {
           method: 'POST',
+          mode: 'cors',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -159,12 +160,12 @@
         const data = await response.json();
         console.log('Token response data:', data);
 
-        if (!data.access_token) {
-          throw new Error('Access token is missing in the response.');
+        if (!data.id_token) {
+          throw new Error('Id token is missing in the response.');
         }
 
-        localStorage.setItem('accessToken', data.access_token);
-        console.log('Access token saved successfully:', data.access_token);
+        localStorage.setItem('idToken', data.id_token);
+        console.log('Id token saved successfully:', data.id_token);
 
         window.location.replace(window.location.pathname);
       } catch (error) {
